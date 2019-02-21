@@ -45,4 +45,7 @@ compareAndSet(prev, next)方法调用的是sun.misc包下Unsafe类里的一个�
     }
 ```
 
-
+## 原子操作工具类
+- 基本数据类型:AtomicInteger,AtomicLong,AtomicBoolean
+- 数组类型:AtomicIntegerArray,AtomicLongArray,AtomicReferenceArray
+- 引用类型:AtomicReference,AtomicReferenceFieldUpdater,AtomicMarkableReference
