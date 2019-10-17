@@ -7,7 +7,7 @@
 ### nio服务端主要创建过程
 - 初始化ServerSocketChannel,所有监听客户端连接的父通道
 ```java
-serverSocketChannl = ServerSocketChannel.open();
+serverSocketChannl = ServerSocketChannel.open();json
 serverSocketChannl.configureBlocking(false);
 serverSocketChannl.socket().bind(new InetSocketAddress(port), 1024);
 ```
