@@ -160,5 +160,55 @@ final Node<K,V>[] resize() {
 ```
 再回到putVal函数中
 ```java
-
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                boolean evict) {
+    //...
+    //判断当前数组索引是否为空，为空则新增节点
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        tab[i] = newNode(hash, key, value, null);
+    //
+    else {
+        Node<K,V> e; K k;
+        //是链表且与链表中第一个节点的key值相等，赋值给e
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            e = p;
+        //如果当前节点是二叉树，则新增节点
+        else if (p instanceof TreeNode)
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        //是链表且与链表中第一个节点的key值不相等，则遍历
+        else {
+            for (int binCount = 0; ; ++binCount) {
+                //没有遍历到与key值相等的节点
+                if ((e = p.next) == null) {
+                    //尾插
+                    p.next = newNode(hash, key, value, null);
+                    //如果链表中节点数大于8则进行树化链表
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+                //遍历到赋值给e，直接退出
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                p = e;
+            }
+        }
+        //替换e的value
+        if (e != null) { // existing mapping for key
+            V oldValue = e.value;
+            if (!onlyIfAbsent || oldValue == null)
+                e.value = value;
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+    ++modCount;
+    //数组使用量超过阈值则扩容
+    if (++size > threshold)
+        resize();
+    afterNodeInsertion(evict);
+    return null;
+}
 ```
