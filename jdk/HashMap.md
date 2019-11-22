@@ -103,6 +103,18 @@ void createEntry(int hash, K key, V value, int bucketIndex) {
     size++;
 }
 ```
+put流程:
+1.判断table是否为空，为空则inflateTable()膨胀数组
+2.判断key是否为null,为null则调用putForNullKey方法
+3.否则计算hash值并取模得到数组索引位置
+4.遍历链表准备插入,遍历过程中若发现key已经存在直接覆盖value即可
+5.如果没遍历到则直接采用头插法插入节点
+
+扩容流程:
+1.初始化新table容量为旧table的两倍
+2.依次遍历旧table中的节点放入新table中
+3.最后更新新阈值
+
 在多线程的情况下，头部插入会导致链表死循环，从而引起cpu100%的情况
 ## Base 1.8
 ### 初始化
@@ -212,3 +224,22 @@ final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
     return null;
 }
 ```
+put流程:
+1.判断table是否为空，为空则resize()扩容
+2.根据key的hash值取模得到数组索引位置
+3.判断该位置是否为空，为空则直接插入
+4.否则判断table[i]的首个元素是否和key一样，如果相同则覆盖value
+5.否则继续判断当前数组索引位置是否为treeNode，是的话则直接红黑树插入
+6.否则遍历列表准备插入
+7.如果列表长度大于8,则把链表转为红黑树，否则链表插入,遍历过程中若发现key已经存在直接覆盖value即可
+8.执行插入后会判断，实际存在的键值对数量是否大于最大容量threshold,如果超过则进行扩容
+
+扩容流程:
+1.初始化新table容量为旧table的两倍
+2.依次遍历旧table中的节点放入新table中（1.8在这里做了优化，进一步提高了效率扩容后的位置=原位置OR=原位置+旧容量）
+3.最后更新新阈值
+
+
+![Alt text](/pic/20191122110823.png)
+
+
